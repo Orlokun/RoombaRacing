@@ -1,0 +1,4 @@
+#Wed Jan 20 16:18:17 CLST 2021
+base.0=C\:\\Users\\oguer\\Documents\\GitHub\\RWA_01ServiceApp\\Temp\\gradleOut\\launcher\\build\\intermediates\\transforms\\dexMerger\\release\\0
+path.0=classes.dex
+renamed.0=classes.dex
