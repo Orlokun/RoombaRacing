@@ -166,7 +166,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d44892290206124cb786e00133e2bbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wCollider: {fileID: 0}
+  actualSteerStyle: 0
+  actualAccelStyle: 2
   wheelCollidersParent: {fileID: 1043897232}
   wMeshesParentObject: {fileID: 1587878141}
 --- !u!1001 &268497607

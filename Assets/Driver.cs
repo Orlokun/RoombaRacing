@@ -2,23 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum AccelerationStyle
+{
+    FrontWheel,
+    RearWheel,
+    FourWheel, //Do not Use. Is ont Working Properly
+}
+
+public enum SteeringStyle
+{
+    FrontWheel,
+    RearWheel,
+    FourWheel, //Do not Use. Is ont Working Properly
+}
+
 public class Driver : MonoBehaviour
 {
-    List<WheelCollider> wColliders;
-    List<GameObject> wObjects;
-    Dictionary<WheelCollider, GameObject> wColMeshDictionary;
+    private List<WheelCollider> _wColliders;
+    private List<GameObject> _wObjects;
+    private Dictionary<WheelCollider, GameObject> _wColMeshDictionary;
 
+    public SteeringStyle actualSteerStyle;
+    public AccelerationStyle actualAccelStyle;
 
-    float torqueForce = 200f;
-
-    [SerializeField]GameObject wheelCollidersParent;
+    [SerializeField] GameObject wheelCollidersParent;
     [SerializeField] GameObject wMeshesParentObject;
-
     //Steering//
     float maxSteerAngle = 30f;
-
+    float torqueForce = 200f;
+    float breakTorque = 500f;
     #region AwakeFunctions
-
     private void Awake()
     {
         Initializers();
@@ -26,81 +39,139 @@ public class Driver : MonoBehaviour
         GetWheelMeshes();
         GenerateWheelDictionary();
     }
-
     void Initializers()
     {
-        wColliders = new List<WheelCollider>();
-        wObjects = new List<GameObject>();
-        wColMeshDictionary = new Dictionary<WheelCollider, GameObject>();
+        _wColliders = new List<WheelCollider>();
+        _wObjects = new List<GameObject>();
+        _wColMeshDictionary = new Dictionary<WheelCollider, GameObject>();
     }
-
     void GetWheelColliders()
     {
         Transform t = wheelCollidersParent.transform;
-        for (int i = 0;i<t.childCount;i++)
+        for (int i = 0; i < t.childCount; i++)
         {
-            wColliders.Add(t.GetChild(i).GetComponent<WheelCollider>());
+            _wColliders.Add(t.GetChild(i).GetComponent<WheelCollider>());
         }
     }
-
     void GetWheelMeshes()
     {
         Transform t = wMeshesParentObject.transform;
         for (int i = 0; i < t.childCount; i++)
         {
-            wObjects.Add(t.GetChild(i).gameObject);
+            _wObjects.Add(t.GetChild(i).gameObject);
         }
     }
-
     void GenerateWheelDictionary()
     {
-        for (int i = 0; i<wColliders.Count;i++)
+        for (int i = 0; i < _wColliders.Count; i++)
         {
-            wColMeshDictionary.Add(wColliders[i], wObjects[i]);
+            _wColMeshDictionary.Add(_wColliders[i], _wObjects[i]);
         }
     }
     #endregion
-
-    // Update is called once per frame
-    void Update()
+    #region UpdateFunctions
+    void FixedUpdate()
     {
         float acceleration = Input.GetAxis("Vertical");
         float steering = Input.GetAxis("Horizontal");
-        Go(acceleration, steering);
+        float breaking = Input.GetAxis("Jump");
+        Go(acceleration, steering, breaking);
     }
-
-    void Go (float accel, float steering)
+    void Go(float accel, float steering, float breakForce)
     {
-        foreach (WheelCollider wCol in wColliders)
+        for (int i = 0; i < _wColliders.Count; i++)
         {
-            AddForceToWheel(wCol, accel);
-            Steer(wCol, steering);
-            RotateWheelMeshTorque(wCol);
+            AddForceToWheel(actualAccelStyle, _wColliders[i], accel, i);
+            Steer(actualSteerStyle, _wColliders[i], steering, i);
+            RotateWheelMeshTorque(_wColliders[i]);
+            WheelBreak(_wColliders[i], breakForce, i);
         }
     }
-    
-    void Steer(WheelCollider wCol, float steering)
+    void Steer(SteeringStyle steerStyle, WheelCollider wCol, float steering, int wheelId)
     {
-        steering = Mathf.Clamp(steering, -1, 1) * maxSteerAngle;
-        wCol.steerAngle = steering;
-    }
+        switch (steerStyle)
+        {
+            case SteeringStyle.FourWheel:
+                if (wheelId < 2)
+                {
+                    steering = Mathf.Clamp(steering, -1, 1) * maxSteerAngle;
+                    wCol.steerAngle = steering;
+                }
+                else
+                {
+                    steering = Mathf.Clamp(steering * -1, -1, 1) * maxSteerAngle;
+                    wCol.steerAngle = steering;
+                }
 
-    void AddForceToWheel(WheelCollider wCol, float accel)
+                break;
+            case SteeringStyle.FrontWheel:
+                if (wheelId < 2)
+                {
+                    steering = Mathf.Clamp(steering, -1, 1) * maxSteerAngle;
+                    wCol.steerAngle = steering;
+                }
+
+                break;
+            case SteeringStyle.RearWheel:
+                if (wheelId > 1)
+                {
+                    steering = Mathf.Clamp(steering * -1, -1, 1) * maxSteerAngle;
+                    wCol.steerAngle = steering;
+                }
+
+                break;
+            default:
+                return;
+        }
+    }
+    void AddForceToWheel(AccelerationStyle accelStyle, WheelCollider wCol, float accel, int wheelId)
     {
-        accel = Mathf.Clamp(accel, -1, 1);
-        float thrustTorque = accel * torqueForce;
-        wCol.motorTorque = thrustTorque;
+        var thrustTorque = accel * torqueForce;
+        switch (accelStyle)
+        {
+            case AccelerationStyle.FourWheel:
+                accel = Mathf.Clamp(accel, -1, 1);
+                wCol.motorTorque = thrustTorque;
+                break;
+            case AccelerationStyle.FrontWheel:
+                if (wheelId < 2)
+                {
+                    accel = Mathf.Clamp(accel, -1, 1);
+                    wCol.motorTorque = thrustTorque;
+                }
+                break;
+            case AccelerationStyle.RearWheel:
+                if (wheelId > 1)
+                {
+                    accel = Mathf.Clamp(accel, -1, 1);
+                    wCol.motorTorque = thrustTorque;
+                }
+                break;
+            default:
+                return;
+        }
     }
     void RotateWheelMeshTorque(WheelCollider wCol)
     {
-        Quaternion quat;
-        Vector3 position;
-        wCol.GetWorldPose(out position, out quat);
-
-        GameObject mObj;
-        wColMeshDictionary.TryGetValue(wCol, out mObj);
-        mObj.transform.position = position;
-        mObj.transform.rotation = quat;
+        wCol.GetWorldPose(out var position, out var quat);
+        _wColMeshDictionary.TryGetValue(wCol, out var mObj);
+        if (mObj != null)
+        {
+            mObj.transform.position = position;
+            mObj.transform.rotation = quat;
+        }
     }
-
+    void WheelBreak(WheelCollider wCol, float breakForce, int wheelId)
+    {
+        if (wheelId > 1)
+        {
+            breakForce = Mathf.Clamp(breakForce, -1, 1) * breakTorque;
+            wCol.brakeTorque = breakForce;
+        }
+    }
+    #endregion
+    public void SetState(SteeringStyle _style)
+    {
+        actualSteerStyle = _style;
+    }
 }
