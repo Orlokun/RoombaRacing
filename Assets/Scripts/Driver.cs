@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 #region AccelSteerStyles
+
 public enum AccelerationStyle
 {
     FrontWheel,
     RearWheel,
     FourWheel, //Do not Use. Is ont Working Properly
 }
+
 public enum SteeringStyle
 {
     FrontWheel,
     RearWheel,
     FourWheel, //Do not Use. Is ont Working Properly
 }
+
 #endregion
 
 public class Driver : MonoBehaviour
@@ -28,28 +31,39 @@ public class Driver : MonoBehaviour
 
     [SerializeField] GameObject wheelCollidersParent;
     [SerializeField] GameObject wMeshesParentObject;
-    
+
+    [SerializeField] bool hasVisibleWheels;
+
+
     //Steering//
     float maxSteerAngle = 30f;
+
     //Accelerating
     float torqueForce = 200f;
+
     //Breaking
     float breakTorque = 500f;
-    
+
     #region AwakeFunctions
+
     private void Awake()
     {
         Initializers();
         GetWheelColliders();
-        GetWheelMeshes();
-        GenerateWheelDictionary();
+        if (hasVisibleWheels)
+        {
+            GetWheelMeshes();
+            GenerateWheelDictionary();
+        }
     }
+
     void Initializers()
     {
         _wColliders = new List<WheelCollider>();
         _wObjects = new List<GameObject>();
-        _wColMeshDictionary = new Dictionary<WheelCollider, GameObject>();
+        _wColMeshDictionary = hasVisibleWheels ? new Dictionary<WheelCollider, GameObject>() : null;
     }
+
     void GetWheelColliders()
     {
         Transform t = wheelCollidersParent.transform;
@@ -58,6 +72,7 @@ public class Driver : MonoBehaviour
             _wColliders.Add(t.GetChild(i).GetComponent<WheelCollider>());
         }
     }
+
     void GetWheelMeshes()
     {
         Transform t = wMeshesParentObject.transform;
@@ -66,15 +81,20 @@ public class Driver : MonoBehaviour
             _wObjects.Add(t.GetChild(i).gameObject);
         }
     }
+
     void GenerateWheelDictionary()
     {
+        if (!hasVisibleWheels) return;
         for (int i = 0; i < _wColliders.Count; i++)
         {
             _wColMeshDictionary.Add(_wColliders[i], _wObjects[i]);
         }
     }
+
     #endregion
+
     #region UpdateFunctions
+
     void FixedUpdate()
     {
         float acceleration = Input.GetAxis("Vertical");
@@ -82,7 +102,7 @@ public class Driver : MonoBehaviour
         float breaking = Input.GetAxis("Jump");
         Go(acceleration, steering, breaking);
     }
-    
+
     void Go(float accel, float steering, float breakForce)
     {
         for (int i = 0; i < _wColliders.Count; i++)
@@ -93,6 +113,7 @@ public class Driver : MonoBehaviour
             WheelBreak(_wColliders[i], breakForce, i);
         }
     }
+
     void Steer(SteeringStyle steerStyle, WheelCollider wCol, float steering, int wheelId)
     {
         switch (steerStyle)
@@ -130,6 +151,7 @@ public class Driver : MonoBehaviour
                 return;
         }
     }
+
     void AddForceToWheel(AccelerationStyle accelStyle, WheelCollider wCol, float accel, int wheelId)
     {
         var thrustTorque = accel * torqueForce;
@@ -145,6 +167,7 @@ public class Driver : MonoBehaviour
                     accel = Mathf.Clamp(accel, -1, 1);
                     wCol.motorTorque = thrustTorque;
                 }
+
                 break;
             case AccelerationStyle.RearWheel:
                 if (wheelId > 1)
@@ -152,21 +175,27 @@ public class Driver : MonoBehaviour
                     accel = Mathf.Clamp(accel, -1, 1);
                     wCol.motorTorque = thrustTorque;
                 }
+
                 break;
             default:
                 return;
         }
     }
+
     void RotateWheelMeshTorque(WheelCollider wCol)
     {
-        wCol.GetWorldPose(out var position, out var quat);
-        _wColMeshDictionary.TryGetValue(wCol, out var mObj);
-        if (mObj != null)
+        if (hasVisibleWheels)
         {
-            mObj.transform.position = position;
-            mObj.transform.rotation = quat;
+            wCol.GetWorldPose(out var position, out var quat);
+            _wColMeshDictionary.TryGetValue(wCol, out var mObj);
+            if (mObj != null)
+            {
+                mObj.transform.position = position;
+                mObj.transform.rotation = quat;
+            }
         }
     }
+
     void WheelBreak(WheelCollider wCol, float breakForce, int wheelId)
     {
         if (wheelId > 1)
@@ -184,11 +213,11 @@ public class Driver : MonoBehaviour
         if (Mathf.Abs(wHit.forwardSlip) > 0.4f || Mathf.Abs(wHit.sidewaysSlip) > 0.4f)
         {
             //TODO: Implement Audio System
-            
         }
     }
+
     #endregion
-    
+
     public void SetState(SteeringStyle _style)
     {
         actualSteerStyle = _style;
