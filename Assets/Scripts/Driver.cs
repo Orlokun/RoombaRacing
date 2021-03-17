@@ -25,12 +25,14 @@ public class Driver : MonoBehaviour
     private List<WheelCollider> _wColliders;
     private List<GameObject> _wObjects;
     private Dictionary<WheelCollider, GameObject> _wColMeshDictionary;
+    private Transform[] skidTransforms;
 
     public SteeringStyle actualSteerStyle;
     public AccelerationStyle actualAccelStyle;
 
     [SerializeField] GameObject wheelCollidersParent;
     [SerializeField] GameObject wMeshesParentObject;
+    [SerializeField] Transform wheelPrefabMark;
 
     [SerializeField] bool hasVisibleWheels;
 
@@ -39,10 +41,10 @@ public class Driver : MonoBehaviour
     float maxSteerAngle = 30f;
 
     //Accelerating
-    float torqueForce = 200f;
+    float torqueForce = 1000f;
 
     //Breaking
-    float breakTorque = 500f;
+    float breakTorque = 5000f;
 
     #region AwakeFunctions
 
@@ -71,6 +73,7 @@ public class Driver : MonoBehaviour
         {
             _wColliders.Add(t.GetChild(i).GetComponent<WheelCollider>());
         }
+        skidTransforms = new Transform[_wColliders.Count];
     }
 
     void GetWheelMeshes()
@@ -111,6 +114,7 @@ public class Driver : MonoBehaviour
             Steer(actualSteerStyle, _wColliders[i], steering, i);
             RotateWheelMeshTorque(_wColliders[i]);
             WheelBreak(_wColliders[i], breakForce, i);
+            CheckSkid(_wColliders[i], i);
         }
     }
 
@@ -191,7 +195,7 @@ public class Driver : MonoBehaviour
             if (mObj != null)
             {
                 mObj.transform.position = position;
-                mObj.transform.rotation = quat;
+                mObj.transform.localRotation = quat;
             }
         }
     }
@@ -213,8 +217,37 @@ public class Driver : MonoBehaviour
         if (Mathf.Abs(wHit.forwardSlip) > 0.4f || Mathf.Abs(wHit.sidewaysSlip) > 0.4f)
         {
             //TODO: Implement Audio System
+            //StartSkidTrail(wheelId);
+        }
+        else
+        {
+            //TODO: Deactivate Soud
+            //EndSkidTrail(wheelId);
         }
     }
+
+    void StartSkidTrail(int id)
+    {
+        if (skidTransforms[id] == null)
+        {
+            skidTransforms[id] = Instantiate(wheelPrefabMark);
+        }
+
+        skidTransforms[id].parent = _wColliders[id].transform;
+        skidTransforms[id].localRotation = Quaternion.Euler(90, 0, 0);
+        skidTransforms[id].localPosition = -Vector3.up * _wColliders[id].radius;
+    }
+
+    void EndSkidTrail(int wheelId)
+    {
+        if (skidTransforms[wheelId] == null) return;
+        Transform holder = skidTransforms[wheelId];
+        skidTransforms[wheelId] = null;
+        holder.parent = null;
+        holder.rotation = Quaternion.Euler(90, 0, 0);
+        Destroy(holder.gameObject, 30f);
+    }
+
 
     #endregion
 
