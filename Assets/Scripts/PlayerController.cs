@@ -1,17 +1,16 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : HoverController
 {
-        
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        var horizontal = Input.GetAxis("Horizontal");
-        var vertical = Input.GetAxis("Vertical");
 
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
         InputMovement(vertical, horizontal);
     }
 }

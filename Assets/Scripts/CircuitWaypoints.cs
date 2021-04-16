@@ -15,9 +15,9 @@ public class CircuitWaypoints : MonoBehaviour
 
     private void AddWayPoints()
     {
-        for (int i = 0; i<this.transform.childCount;i++)
+        for (int i = 0; i<transform.childCount;i++)
         {
-            _wayPoints.Add(this.transform.GetChild(i).gameObject);
+            _wayPoints.Add(transform.GetChild(i).gameObject);
         }
     }
     private void OnDrawGizmos()

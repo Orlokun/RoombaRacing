@@ -23,7 +23,7 @@ public class HoverController : MonoBehaviour
 
     public LayerMask GroundLayer;
 
-    Rigidbody hoverBody;
+    protected Rigidbody hoverBody;
 
     bool grounded = false;
     #endregion
@@ -35,6 +35,8 @@ public class HoverController : MonoBehaviour
 
     [SerializeField] int maxVelMagnitude;
     private float maxPitch = 1.6f;
+    public float CurrentSpeed => hoverBody.velocity.magnitude;
+    
     #endregion
     
 	void Start ()
@@ -114,5 +116,9 @@ public class HoverController : MonoBehaviour
     {
         var velocity = hoverBody.velocity;
         return velocity.x > velocity.z ;
+    }
+    public Rigidbody GetRigidBody()
+    {
+        return hoverBody;
     }
 }

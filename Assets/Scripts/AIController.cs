@@ -4,50 +4,64 @@ using System.Numerics;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-public class AIController : MonoBehaviour
+public class AIController : HoverController
 {
     public CircuitWaypoints circuitPoints;
-    private Driver _driver;
     public float steeringSen = 0.01f;
+    
+    //Variables For Straight Line target Prioritization
+    private List<GameObject> objectsInStraightLine;
+    private float horizontalCoverage;
+    private float zAxisCoverage;
+    
     private Vector3 _target;
-    private int _currentWayPoint = 0;
 
-// Start is called before the first frame update
     private void Start()
     {
-        _driver = GetComponent<Driver>();
+        GetGameObjectsInStraightLine();
+        FindClosestObjectWithinObjectsInLine();
+    }
+
+    private void GetGameObjectsInStraightLine()
+    {
+        GamObject[ g]
+    }
+    
+    void FindClosestObjectWithinObjectsInLine()
+    {
+        float previousDist = 0;
+        for (int i = 0; i < circuitPoints.GetWayPoints().Count;i++)
+        {
+            var distance = Vector3.Distance(hoverBody.transform.position, circuitPoints.GetWayPoints()[i].transform.position);
+            if (i == 0)
+            {
+                previousDist = distance;
+            }
+            else if (distance < previousDist)
+            {
+                previousDist = distance;
+            }
+        }
         _target = circuitPoints.GetWayPoints()[_currentWayPoint].transform.position;
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
-        GetRelativePosition();
+        base.FixedUpdate();
+        SetSteerAndAccel();
     }
 
-    void GetRelativePosition()    //Needs to be refactored
+    void SetSteerAndAccel() //Needs to be refactored
     {
-        var localTarget = _driver.GetRBody().gameObject.transform.InverseTransformPoint(_target);
-        var distToTarget = Vector3.Distance(_target, _driver.GetRBody().gameObject.transform.position);
-
+        var localTarget = hoverBody.gameObject.transform.InverseTransformPoint(_target);
         var targetAngle = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
+        var steer = Mathf.Clamp(targetAngle * steeringSen, -1, 1) * Mathf.Sign(CurrentSpeed);
 
-        var steer = Mathf.Clamp(targetAngle * steeringSen, -1, 1) * Mathf.Sign(_driver.CurrentSpeed);
+        var distToTarget = Vector3.Distance(_target, hoverBody.transform.position);
         var accel = 1f;
         var _breakForce = 0f;
 
-        if (distToTarget < 5) { _breakForce = 1; accel = 0; }
-
-        _driver.Go(accel, steer, _breakForce);
-        if (distToTarget < 2)
-        {
-            _currentWayPoint++;
-            if (_currentWayPoint >= circuitPoints.GetWayPoints().Count)
-            {
-                _currentWayPoint = 0;
-            }
-            _target = circuitPoints.GetWayPoints()[_currentWayPoint].transform.position;
-        }
-        _driver.CalculateEngineSound();
+        InputMovement(accel, steer);
     }
 }
