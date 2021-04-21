@@ -24,7 +24,7 @@ public class AIController : HoverController
 
     private void GetGameObjectsInStraightLine()
     {
-        GamObject[ g]
+    
     }
     
     void FindClosestObjectWithinObjectsInLine()
@@ -39,13 +39,13 @@ public class AIController : HoverController
             }
             else if (distance < previousDist)
             {
+                _target = circuitPoints.GetWayPoints()[i].transform.position;
                 previousDist = distance;
             }
         }
-        _target = circuitPoints.GetWayPoints()[_currentWayPoint].transform.position;
     }
 
-    // Update is called once per frame
+    // Update is called once per frame    
     protected override void FixedUpdate()
     {
         base.FixedUpdate();

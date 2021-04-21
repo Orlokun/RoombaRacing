@@ -68,6 +68,7 @@
      <Compile Include="Assets\Scripts\PlayerController.cs" />
      <Compile Include="Assets\WheelEffects\BetterWheelEffects\Skidmarks.cs" />
      <Compile Include="Assets\WheelEffects\BetterWheelEffects\WheelSkid.cs" />
+     <None Include="Assets\Samples\Terrain Tools\0.1.0-preview\Terrain Assets\ThirdPartyNotices.txt" />
      <None Include="Assets\HoverController\ReadMe.txt" />
      <None Include="Assets\WheelEffects\BetterWheelEffects\Skidmarks.shader" />
  <Reference Include="Unity.Timeline.Editor">
@@ -96,6 +97,30 @@
  </Reference>
  <Reference Include="UnityEditor.UI">
  <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.ProBuilder">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.ProBuilder.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.ProBuilder.Editor">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.ProBuilder.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.ProBuilder.AssetIdRemapUtility">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.ProBuilder.AssetIdRemapUtility.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.ProBuilder.AddOns.Editor">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.ProBuilder.AddOns.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Polybrush">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.Polybrush.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Polybrush.Editor">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.Polybrush.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TerrainTools">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.TerrainTools.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TerrainTools.Editor">
+ <HintPath>C:/Users/GMR User/Documents/GitGames/RumbaRacing/Library/ScriptAssemblies/Unity.TerrainTools.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.11f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
