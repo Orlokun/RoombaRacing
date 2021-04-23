@@ -8,9 +8,20 @@ public class PlayerController : HoverController
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        InputMovement(vertical, horizontal);
+        
+        MovementInput(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal"));
+        CheckJumpInput(Input.GetButton("Jump"));
+        CheckTurboInput(Input.GetKeyDown(KeyCode.LeftShift));
     }
+
+
+
+    protected void CheckJumpInput(bool jump)
+    {
+        if (jump)
+        {
+            ActivateJump();
+        }
+    }
+
 }

@@ -62,6 +62,6 @@ public class AIController : HoverController
         var accel = 1f;
         var _breakForce = 0f;
 
-        InputMovement(accel, steer);
+        MovementInput(accel, steer);
     }
 }
